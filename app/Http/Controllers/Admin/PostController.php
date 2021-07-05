@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PostRequest;
 use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str; // importo l'helper delle stringhe per lo slug
@@ -17,9 +19,10 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts= Post::all();
+        $posts = Post::all();
+       $categories = Category::all();
+       return view('admin.posts.index', compact('posts','categories'));
 
-        return view('admin.posts.index',compact('posts'));
     }
 
     /**
@@ -29,7 +32,10 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('admin.posts.create');
+        $categories = Category::all();
+
+        return view('admin.posts.create', compact('categories'));
+
     }
 
 
@@ -39,11 +45,18 @@ class PostController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
         $data = $request->all();
-
-        $data['slug'] = Str::slug($data['title'], '-'); // slug;
+        $data['slug'] = Str::slug($data['title'], '-'); // Lo slug è una forma leggibile e valida per l’URL di un post o di una pagina web. Serve per la SEO
+        $slug_exist = Post::where('slug', $data['slug'])->first(); //cerca se esiste uno slug
+        $counter = 0; // contatore iniziale
+        while ($slug_exist) { // fintanto che esiste uno slug ne genero un altro. In questo modo evito che ci siano due slug uguali
+            $title = $data['title'] . '-' . $counter;
+            $data['slug'] = Str::slug($title, '-');
+            $slug_exist = Post::where('slug', $data['slug'])->first();
+            $counter++;
+        }
 
         $new_post = new Post();
 
@@ -51,8 +64,8 @@ class PostController extends Controller
 
         $new_post->save();
 
-
         return redirect()->route('admin.posts.show', $new_post);
+
 
     }
 
@@ -85,10 +98,12 @@ class PostController extends Controller
     {
         $post = Post::find($id);
 
+        $categories = Category::all();
+
         if(!$post){
             abort(404);
         }
-        return view('admin.posts.edit', compact('post'));
+        return view('admin.posts.edit', compact('post','categories'));
     }
 
 
@@ -99,15 +114,33 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post)
+    public function update(PostRequest $request, Post $post)
     {
         $data = $request->all();
 
-        $data['slug'] = Str::slug($post->title, '-'); // slug;
+        if ($post->title !== $data['title']) {
+            $slug = Str::slug($data['title'], '-'); // Lo slug è una forma leggibile e valida per l’URL di un post o di una pagina web. Serve per la SEO
+            $slug_exist = Post::where('slug', $slug)->first(); //cerca se esiste uno slug
+            $counter = 0; // contatore iniziale
+            while ($slug_exist) { // fintanto che esiste uno slug ne genero un altro. In questo modo evito che ci siano due slug uguali
+                $title = $data['title'] . '-' . $counter;
+                $slug = Str::slug($title, '-');
+                $data['slug'] = $slug;
+                $slug_exist = Post::where('slug', $slug)->first();
+                $counter++;
+            }
+        } else {
+            $data['slug'] = $post->slug;
+        }
+
+        // $data = $request->all();
+
+        // $data['slug'] = Str::slug($post->title, '-'); // slug;
 
         $post->update($data);
 
         return redirect()->route('admin.posts.show', $post);
+
     }
 
 

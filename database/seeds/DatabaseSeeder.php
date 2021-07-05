@@ -11,6 +11,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UsersTableSeeder::class);
+        /* $this->call([
+            PostsTableSeeder::class, //inserendo tutti i seeder dentro questa funzione mi carica tutti i seeder dentro il database, è lo stesso procedimento del comando php artisan db:seed PosttableSeeder
+            CategoriesTableSeeder::class, // per ogni uno
+            UpdatePostsSeeder::class
+        ]); */
     }
+
 }
