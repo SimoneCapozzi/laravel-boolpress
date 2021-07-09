@@ -8,6 +8,7 @@ import About from './pages/About.vue';
 import Contact from './pages/Contact.vue';
 import Blog from './pages/Blog.vue';
 import Error404 from './pages/Error404.vue';
+import PostDetail from './pages/PostDetail.vue';
 
 const router = new VueRouter({
     mode: 'history', // tiene in memoria la navigazione virtuale che avviene all'interno di vue
@@ -38,6 +39,11 @@ const router = new VueRouter({
             path: '/*', //diciamo che è la home
             name: 'error404',// serve per genereare il lik
             component: Error404//componente sempre lettera maiuscola
+        },
+        {
+            path: '/post/:slug', //diciamo che è la home
+            name: 'postDetail',// serve per genereare il lik
+            component: PostDetail//componente sempre lettera maiuscola
         },
     ]
 })
