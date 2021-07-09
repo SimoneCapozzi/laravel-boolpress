@@ -7,8 +7,15 @@
                         <h5 class="card-title">{{ post.title }}</h5>
                         <span v-if="post.category" class="badge badge-success custom-badge">{{ post.category.name }}</span>
                     </div>
-                    <i>{{ post.created_at }}</i>
+                    <i>{{ FormatDate.format(post.created_at) }}</i>
                     <p class="card-text">{{ post.content }}</p>
+                    <div>
+                      <i
+                      v-for="tag in post.tags"
+                      :key="'t'+tag.id"
+                     >{{tag.name}}</i>
+                    </div>
+
                     <router-link class="btn btn-secondary" :to="{ name: 'blog'}">Torna indietro</router-link>
                 </div>
 
@@ -18,11 +25,13 @@
 
 <script>
 import axios from 'axios';
+import FormatDate from '../classes/FormatDate';
 export default {
     name : 'PostDetail',
     data(){
         return{
-            post:{}
+            post:{},
+            FormatDate
         }
     },
     mounted(){
@@ -46,5 +55,9 @@ export default {
 </script>
 
 <style>
+i{
+    display: inline-block;
+    margin-right: 10px;
+}
 
 </style>
